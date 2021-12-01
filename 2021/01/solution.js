@@ -6,32 +6,46 @@ export default class Day_01 {
   }
 
   problem_01 = () => {
-    if (INPUT.length < 1) return 0;
+    // Let's make sure we're dealing with proper input
+    if (!INPUT || INPUT.length < 1) return 0;
+    // Make sure the counter is reset before beginning.
     this.numIncrements = 0;
-    for (let i = 1; i < INPUT.length; i++) {
-      if (INPUT[i] > INPUT[i - 1]) {
-        this.numIncrements += 1;
+    // Let's loop trough the array once
+    for (let i = 0; i < INPUT.length - 1; i++) {
+      // Get the current and next value
+      const current = INPUT[i];
+      const next = INPUT[i + 1];
+      // If the next value is larger, we increment the counter
+      if (next > current) {
+        this.numIncrements++;
       }
     }
+    // Finally, we return the results
     return this.numIncrements;
   };
 
   problem_02 = () => {
-    if (INPUT.length < 3) return 0;
+    // Let's make sure we're dealing with proper input
+    if (!INPUT || INPUT.length < 3) return 0;
+    // Make sure the counter is reset before beginning.
     this.numIncrements = 0;
-    for (let i = 0; i < INPUT.length; i++) {
-      if (i + 3 > INPUT.length) break;
-      const tempSum1 = INPUT[i] + INPUT[i + 1] + INPUT[i + 2];
-      const tempSum2 = INPUT[i + 1] + INPUT[i + 2] + INPUT[i + 3];
-      if (tempSum1 < tempSum2) {
-        this.numIncrements += 1;
+    // Let's loop trough the array once
+    for (let i = 0; i < INPUT.length - 3; i++) {
+      // Let's calculate the current and next "window"
+      const currentWindow = INPUT[i] + INPUT[i + 1] + INPUT[i + 2];
+      const nextWindow = INPUT[i + 1] + INPUT[i + 2] + INPUT[i + 3];
+      // If nextWindow is larger than the current window, we increment the counter
+      if (nextWindow > currentWindow) {
+        this.numIncrements++;
       }
     }
+    // Finally, we return the results
     return this.numIncrements;
   };
 }
-
+// Initiate the class
 const day_01 = new Day_01();
+// And run the solvers
 const answer_01 = day_01.problem_01();
 const answer_02 = day_01.problem_02();
 
