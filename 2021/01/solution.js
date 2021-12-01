@@ -1,11 +1,11 @@
 import { INPUT } from "./input.js";
 
-export default class Day_01 {
+export default class Solver {
   constructor() {
     this.numIncrements = 0;
   }
 
-  problem_01 = () => {
+  solveProblemOne = () => {
     // Let's make sure we're dealing with proper input
     if (!INPUT || INPUT.length < 1) return 0;
     // Make sure the counter is reset before beginning.
@@ -24,7 +24,7 @@ export default class Day_01 {
     return this.numIncrements;
   };
 
-  problem_02 = () => {
+  solveProblemTwo = () => {
     // Let's make sure we're dealing with proper input
     if (!INPUT || INPUT.length < 3) return 0;
     // Make sure the counter is reset before beginning.
@@ -44,11 +44,11 @@ export default class Day_01 {
   };
 }
 // Initiate the class
-const day_01 = new Day_01();
+const solver = new Solver();
 // And run the solvers
-const answer_01 = day_01.problem_01();
-const answer_02 = day_01.problem_02();
+const answerOne = solver.solveProblemOne();
+const answerTwo = solver.solveProblemTwo();
 
 console.log(
-  `Answer for problem 01: ${answer_01}. Answer for problem 02: ${answer_02}`
+  `Answer for problem 01: ${answerOne}. Answer for problem 02: ${answerTwo}`
 );
