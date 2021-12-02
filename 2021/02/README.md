@@ -11,8 +11,7 @@ Note that since you're on a submarine, down and up affect your depth, and so the
 
 The submarine seems to already have a planned course (your puzzle input). You should probably figure out where it's going. For example:
 
-<pre><code>
-forward 5
+<pre><code>forward 5
 down 5
 forward 8
 up 3
@@ -55,4 +54,4 @@ down 8 adds 8 to your aim, resulting in a value of 10.
 forward 2 adds 2 to your horizontal position, a total of 15. Because your aim is 10, your depth increases by 2*10=20 to a total of 60.
 After following these new instructions, you would have a horizontal position of 15 and a depth of 60. (Multiplying these produces 900.)
 
-Using this new interpretation of the commands, calculate the horizontal position and depth you would have after following the planned course. What do you get if you multiply your final horizontal position by your final depth?
+_Using this new interpretation of the commands, calculate the horizontal position and depth you would have after following the planned course. What do you get if you multiply your final horizontal position by your final depth?_
