@@ -55,7 +55,7 @@ export default class Solver {
         for (let ii = 0; ii < oneBoardLength; ii += rowLength) {
           const row = board.slice(ii, ii + rowLength);
           if (row.every((rowNumber) => rowNumber === "-1")) {
-            return board;
+            return { winner: board, index: i };
           }
         }
         // Or a winning column
@@ -68,13 +68,24 @@ export default class Solver {
             board[j + rowLength * 4],
           ];
           if (column.every((columnNumber) => columnNumber === "-1")) {
-            return board;
+            return { winner: board, index: i };
           }
         }
       }
     }
     // If we've made it this far, we don't have a winner yet.
-    return null;
+    return { winner: null };
+  };
+
+  // Returns the sum of all numbers not in the winning row
+  // of the supplied board.
+  #getBoardSum = (board) => {
+    return board.reduce((acc, num) => {
+      if (num !== "-1") {
+        acc += parseInt(num);
+      }
+      return acc;
+    }, 0);
   };
 
   solveProblemOne = () => {
@@ -82,8 +93,8 @@ export default class Solver {
     let boardsString = this.#boardsString;
     // Then we'll declare a holder for the winning board
     let winningBoard = null;
-    // Then we'll generate a new boardsString for every number to
-    // draw (until we have a winning board).
+    // Then we'll generate a new boardsString for every number
+    // drawn (until we have a winning board).
     for (let i = 0; i < this.#numbersToDraw.length; i++) {
       // Let's get an updated boardsString...
       boardsString = this.#getNewBoardsString(
@@ -91,25 +102,64 @@ export default class Solver {
         this.#numbersToDraw[i]
       );
       // And check if that string contains a winning board
-      winningBoard = this.#getWinningBoard(boardsString);
+      const { winner } = this.#getWinningBoard(boardsString);
+      winningBoard = winner;
       // If it does, we break the loop.
       if (winningBoard !== null) {
         // We want to return the product of the sum of all unmarked numbers
         // in the winning board times the last drawn number.
-        const boardSum = winningBoard.reduce((acc, num) => {
-          if (num !== "-1") {
-            acc += parseInt(num);
-          }
-          return acc;
-        }, 0);
-        return boardSum * this.#numbersToDraw[i];
+        return this.#getBoardSum(winningBoard) * this.#numbersToDraw[i];
       }
     }
     throw new Error("No winning board found!");
   };
 
   solveProblemTwo = () => {
-    return null;
+    // Let's define a local boardsString that we can alter
+    let boardsString = this.#boardsString;
+    // Let's define a holder for the last drawn number
+    // that resulted in a winner
+    let lastDrawnWinningNumber = null;
+    // Then we'll declare a holder for the winning boards
+    const winningBoards = [];
+    // Then we'll generate a new boardsString for every number drawn
+    for (let i = 0; i < this.#numbersToDraw.length; i++) {
+      if (boardsString.length < 25) break;
+      // Let's get an updated boardsString...
+      boardsString = this.#getNewBoardsString(
+        boardsString,
+        this.#numbersToDraw[i]
+      );
+      // And push all boards that have won
+      while (true) {
+        // Let's get the potential winner
+        const { winner: winningBoard, index } =
+          this.#getWinningBoard(boardsString);
+        // If there was no winner, move on
+        if (winningBoard === null) {
+          break;
+        } else {
+          // Otherwise we push the winning board to the array of winners...
+          winningBoards.push(winningBoard);
+          // Make sure to keep the last drawn winning number updated
+          lastDrawnWinningNumber = this.#numbersToDraw[i];
+          // Then we have to remove the winning board from the
+          // string containing all boards. The solution below is
+          // terrible, but it gets the job done...
+          const boardsStringArray = boardsString.split(" ");
+          const boardsArrayWinnerExtracted = [
+            ...boardsStringArray.slice(0, index),
+            ...boardsStringArray.slice(index + 25),
+          ];
+          boardsString = boardsArrayWinnerExtracted.join(" ");
+        }
+      }
+    }
+    // We want the last winning board. Let's get it:
+    const lastWinningBoard = winningBoards[winningBoards.length - 1];
+    // We want to return the product of the sum of all unmarked numbers
+    // in the last winning board times the last drawn number.
+    return this.#getBoardSum(lastWinningBoard) * lastDrawnWinningNumber;
   };
 }
 // Initiate the class
