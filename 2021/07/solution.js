@@ -12,7 +12,6 @@ export default class Solver {
     const sortedInput = [...INPUT].sort((a, b) => {
       return a - b;
     });
-    console.log(sortedInput);
     // Then we get the middle index
     const middleIndex = Math.floor(inputLength / 2);
     // Uneven inputs are simple, just get the element
@@ -27,23 +26,56 @@ export default class Solver {
     );
   };
 
-  // Returns the total cost to the supplied point
-  #getTotalCostToPoint = (point) => {
+  #getInputAverage = () => {
+    // First we get the length of the array
+    const inputLength = INPUT.length;
+    // If we're passed an empty array we return null
+    if (inputLength === 0) return 0;
+    // Then we get the sum of the array elements
+    const inputSum = INPUT.reduce((acc, curr) => {
+      return (acc += curr);
+    }, 0);
+    // The we return the sum divided by the number of elements in the array
+    return Math.ceil(inputSum / inputLength);
+  };
+
+  // Returns the total cost to the supplied point, either
+  // for constant a burn-rate, or for a linear burn-rate.
+  #getTotalCostToPoint = (point, burnType) => {
     let totalCost = 0;
-    INPUT.forEach((position) => {
-      totalCost += Math.abs(position - point);
-    });
-    return totalCost;
+    if (burnType === "CONSTANT") {
+      INPUT.forEach((position) => {
+        totalCost += Math.abs(position - point);
+      });
+      return totalCost;
+    }
+    if (burnType === "LINEAR") {
+      INPUT.forEach((position) => {
+        const distance = Math.abs(position - point);
+        totalCost += Math.floor(
+          distance * (distance + 1) * ((2 * distance + 1) / 6)
+        );
+      });
+      return totalCost;
+    }
+    return null;
   };
 
   solveProblemOne = () => {
     // To get the least total cost for the fuel, we calculate the median position
     // and then we calculate the cost to the median point.
     const median = this.#getInputMedian();
-    return this.#getTotalCostToPoint(median);
+    return this.#getTotalCostToPoint(median, "CONSTANT");
   };
 
-  solveProblemTwo = () => {};
+  solveProblemTwo = () => {
+    // Turns out that the fuel burn rate is not constant,
+    // so the median solution won't give us the correct answer.
+    // (Since we might have outliers far away that will make the
+    // fuel consumption explode). Let's try with the average instead!
+    const average = this.#getInputAverage();
+    return this.#getTotalCostToPoint(average, "LINEAR");
+  };
 }
 // Initiate the class
 const solver = new Solver();
