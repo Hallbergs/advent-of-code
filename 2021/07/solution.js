@@ -36,7 +36,7 @@ export default class Solver {
       return (acc += curr);
     }, 0);
     // The we return the sum divided by the number of elements in the array
-    return Math.ceil(inputSum / inputLength);
+    return Math.floor(inputSum / inputLength);
   };
 
   // Returns the total cost to the supplied point, either
@@ -52,9 +52,8 @@ export default class Solver {
     if (burnType === "LINEAR") {
       INPUT.forEach((position) => {
         const distance = Math.abs(position - point);
-        totalCost += Math.floor(
-          distance * (distance + 1) * ((2 * distance + 1) / 6)
-        );
+        // Formula below is 1 + 2 + 3 ... + (N - 1) + N
+        totalCost += (distance * (distance + 1)) / 2;
       });
       return totalCost;
     }
