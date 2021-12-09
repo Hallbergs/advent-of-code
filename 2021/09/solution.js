@@ -56,7 +56,7 @@ export default class Solver {
     );
     const pointsToAdd = surroundingPoints.filter((point) => {
       return (
-        parseInt(combinedInput[point]) - 1 ===
+        parseInt(combinedInput[point]) >
           parseInt(combinedInput[lowPointIndex]) &&
         parseInt(combinedInput[point]) !== 9
       );
