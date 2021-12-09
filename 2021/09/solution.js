@@ -2,13 +2,12 @@ import { INPUT } from "./input.js";
 
 export default class Solver {
   #rowLength;
-  #adjacentIndexes;
 
   constructor() {
     this.#rowLength = INPUT[0].length;
-    this.#adjacentIndexes = [-1, 1, -this.#rowLength, this.#rowLength];
   }
 
+  // Returns all low-points present in the input
   #getAllLowPoints = (settings) => {
     // We can return an array of indexes, or values depending on
     // returnValue in settings. Let's get it
@@ -17,10 +16,12 @@ export default class Solver {
     const combinedInput = [...INPUT].join("").split("");
     // Then we'll get the low-points and return them
     return combinedInput.reduce((acc, curr, cIndex) => {
-      // We have a low-point if every index in the adjacent-array
+      // We have a low-point if every shift in the adjacent-shift-array
       // leads to a value which is larger (or undefined) than the current value
-      const currentIsLow = this.#adjacentIndexes.every((index) => {
-        return parseInt(combinedInput[cIndex + index] ?? 99) > parseInt(curr);
+      // Let's create the array of shifts that can be used to get the adjacent points
+      const adjacentShifts = this.#getAdjacentShifts(cIndex);
+      const currentIsLow = adjacentShifts.every((shift) => {
+        return parseInt(combinedInput[cIndex + shift] || 99) > parseInt(curr);
       });
       // If we're dealing with a low-point, let's push the value or the index to the array.
       currentIsLow && acc.push(returnValue === "VALUE" ? curr : cIndex);
@@ -28,62 +29,60 @@ export default class Solver {
     }, []);
   };
 
+  // Initiates a Map that keeps track of all basins
   #initiateBasinsMap = (indexArray) => {
     const basinsMap = new Map();
     indexArray.forEach((index) => {
-      basinsMap.set(index, []);
+      basinsMap.set(index, [index]);
     });
     return basinsMap;
   };
 
+  // Returns shifts that can be used to get the surrounding points
+  #getAdjacentShifts = (index) => {
+    return index % this.#rowLength === 0
+      ? [1, -this.#rowLength, this.#rowLength]
+      : (index + 1) % this.#rowLength === 0
+      ? [-1, -this.#rowLength, this.#rowLength]
+      : [-1, 1, -this.#rowLength, this.#rowLength];
+  };
+
+  // Recursive function which takes a low-point and gets the chain of points
+  // belonging to the low-point.
   #updateBasins = (lowPointIndex, basins, usedIndexes, combinedInput) => {
-    usedIndexes.add(lowPointIndex);
-    !basins.has(lowPointIndex) && basins.set(lowPointIndex, []);
-    const surroundingPoints = this.#getFreeSurroundingPoints(
+    const surroundingPoints = this.#getSurroundingPoints(
       lowPointIndex,
-      usedIndexes,
       combinedInput
     );
-    surroundingPoints.forEach((surrounding) => {
-      const isLowPoint = this.#adjacentIndexes.every((adjIndex) => {
-        return (
-          surrounding + adjIndex === lowPointIndex ||
-          parseInt(combinedInput[surrounding + adjIndex] ?? 99) >
-            parseInt(combinedInput[surrounding])
-        );
-      });
-      if (isLowPoint && !usedIndexes.has(surrounding)) {
+    const pointsToAdd = surroundingPoints.filter((point) => {
+      return (
+        parseInt(combinedInput[point]) - 1 ===
+          parseInt(combinedInput[lowPointIndex]) &&
+        parseInt(combinedInput[point]) !== 9
+      );
+    });
+    pointsToAdd.forEach((point) => {
+      if (!usedIndexes.has(point)) {
+        const adjacentShifts = this.#getAdjacentShifts(point);
         for (const [key, value] of basins.entries()) {
-          if (
-            this.#adjacentIndexes.some((adjIndex) =>
-              value.includes(surrounding + adjIndex)
-            )
-          ) {
-            value.push(surrounding);
+          if (adjacentShifts.some((shift) => value.includes(point + shift))) {
+            value.push(point);
             basins.set(key, value);
-            usedIndexes.add(surrounding);
+            usedIndexes.add(point);
           }
         }
-        if (!usedIndexes.has(surrounding)) {
-          const basinArray = basins.get(lowPointIndex);
-          basinArray.push(surrounding);
-          basins.set(lowPointIndex, basinArray);
-        }
-
-        this.#updateBasins(surrounding, basins, usedIndexes, combinedInput);
+        this.#updateBasins(point, basins, usedIndexes, combinedInput);
       }
     });
   };
 
-  #getFreeSurroundingPoints = (index, usedIndexes, combinedInput) => {
+  // Returns all surrounding points (indexes) for the supplied point
+  #getSurroundingPoints = (index, combinedInput) => {
     const surroundingPoints = [];
-    this.#adjacentIndexes.forEach((adjIndex) => {
-      const surroundingIndex = index + adjIndex;
-      if (
-        surroundingIndex > -1 &&
-        surroundingIndex < combinedInput.length &&
-        !usedIndexes.has(surroundingIndex)
-      ) {
+    const adjacentIndexes = this.#getAdjacentShifts(index);
+    adjacentIndexes.forEach((shift) => {
+      const surroundingIndex = index + shift;
+      if (surroundingIndex > -1 && surroundingIndex < combinedInput.length) {
         surroundingPoints.push(surroundingIndex);
       }
     });
@@ -105,12 +104,24 @@ export default class Solver {
     const lowPointIndexes = this.#getAllLowPoints({ returnValue: "INDEX" });
     // Let's get the input as an array
     const combinedInput = [...INPUT].join("").split("");
+    // Let's initiate a set in which we can keep track of used numbers.
     const usedIndexes = new Set();
+    // Let's initiate a Map where we can keep track of all the basins
     const basins = this.#initiateBasinsMap(lowPointIndexes);
+    // Then we start constructing the basins!
     lowPointIndexes.forEach((lowPointIndex) => {
       this.#updateBasins(lowPointIndex, basins, usedIndexes, combinedInput);
     });
-    console.log("basins: ", basins);
+    // We want to extract the three largest basins, so lets sort the basins
+    const sortedBasins = new Map(
+      [...basins.entries()].sort((a, b) => {
+        return b[1].length - a[1].length;
+      })
+    );
+    // We want to return the product of the length of the
+    // three largest basins. Let's get them and return
+    const [first, second, third] = sortedBasins.values();
+    return first.length * second.length * third.length;
   };
 }
 // Initiate the class
