@@ -3,14 +3,16 @@ import { INPUT } from "./input.js";
 export default class Solver {
   #openingBrackets;
   #closingBrackets;
-  #costs;
+  #errorCosts;
+  #missingCosts;
   #costInfo;
   #bracketInfo;
 
   constructor() {
     this.#openingBrackets = ["(", "[", "{", "<"];
     this.#closingBrackets = [")", "]", "}", ">"];
-    this.#costs = [3, 57, 1197, 25137];
+    this.#errorCosts = [3, 57, 1197, 25137];
+    this.#missingCosts = [1, 2, 3, 4];
 
     this.#bracketInfo = this.#initiateBracketInfo();
     this.#costInfo = this.#initiateCostInfo();
@@ -33,7 +35,10 @@ export default class Solver {
   #initiateCostInfo = () => {
     const costInfo = new Map();
     this.#closingBrackets.forEach((bracket, index) => {
-      costInfo.set(bracket, this.#costs[index]);
+      costInfo.set(bracket, {
+        errorCost: this.#errorCosts[index],
+        missingCost: this.#missingCosts[index],
+      });
     });
     return costInfo;
   };
@@ -49,7 +54,7 @@ export default class Solver {
   };
 
   // Checks a line and returns a potential bad closing bracket
-  #getPotentialBadBracket = (line) => {
+  #getPotentialBadAndMissingBracketsBrackets = (line) => {
     // We have to keep track of all opening brackets we've seen
     const seenBrackets = [];
     for (let i = 0; i < line.length; i++) {
@@ -62,7 +67,7 @@ export default class Solver {
         const expectedBracket = this.#getClosingBracket(seenBrackets.pop());
         // And if the current bracket is not the expected one, we return the faulty bracket
         if (bracket !== expectedBracket) {
-          return bracket;
+          return { badBracket: bracket, missingBrackets: [] };
         }
       } else {
         // If we're not dealing  with a closing bracket, we just add it to the
@@ -70,14 +75,22 @@ export default class Solver {
         seenBrackets.push(bracket);
       }
     }
-    // If no faulty bracket is found, we return null
-    return null;
+    // If no faulty bracket is found, we return null for the missing
+    // brackets, and the closing brackets of the missing brackets as the
+    // missing brackets.
+    return {
+      badBracket: null,
+      missingBrackets: seenBrackets.reduce((acc, bracket) => {
+        acc.push(this.#getClosingBracket(bracket));
+        return acc;
+      }, []),
+    };
   };
 
   // Summarizes the cost of all supplied brackets
   #getTotalCost = (brackets) => {
     return brackets.reduce((acc, bracket) => {
-      acc += this.#costInfo.get(bracket);
+      acc += this.#costInfo.get(bracket)?.errorCost ?? 0;
       return acc;
     }, 0);
   };
@@ -86,7 +99,8 @@ export default class Solver {
     const badBrackets = [];
     INPUT.forEach((line) => {
       // Let's check if the line contains a bad bracket
-      const badBracket = this.#getPotentialBadBracket(line);
+      const { badBracket } =
+        this.#getPotentialBadAndMissingBracketsBrackets(line);
       // If it does, we add it to the array of bad brackets
       badBracket && badBrackets.push(badBracket);
     });
@@ -95,14 +109,26 @@ export default class Solver {
   };
 
   solveProblemTwo = () => {
+    const costs = [];
     INPUT.forEach((line) => {
-      // In P2 we're supposed to ignore the faulty lines and only
-      // care about the incomplete ones. So let's check if we have
-      // a bad bracket, and if we do, we ignore that line.
-      const badBracket = this.#getPotentialBadBracket(line);
-      if (badBracket === null) {
+      // Let's get the missing brackets to begin with
+      const { missingBrackets } =
+        this.#getPotentialBadAndMissingBracketsBrackets(line);
+      // We might get an empty array returned (if there has been a bad bracket)
+      // Let's make sure we have some missing brackets before moving on.
+      if (missingBrackets.length > 0) {
+        // If we have missing brackets, we can calculate the cost for them
+        let cost = 0;
+        for (let i = missingBrackets.length - 1; i > -1; i--) {
+          cost = cost * 5 + this.#costInfo.get(missingBrackets[i]).missingCost;
+        }
+        costs.push(cost);
       }
     });
+    // We want to return the middle cost (after the costs has been sorted)
+    // We expect the input to always result in an odd number of entries.
+    const sortedCosts = costs.sort((a, b) => a - b);
+    return sortedCosts[Math.floor(costs.length / 2)];
   };
 }
 // Initiate the class
