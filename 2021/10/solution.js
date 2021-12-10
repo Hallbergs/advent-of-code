@@ -54,7 +54,7 @@ export default class Solver {
   };
 
   // Checks a line and returns a potential bad closing bracket
-  #getPotentialBadAndMissingBracketsBrackets = (line) => {
+  #getPotentialBadAndMissingBrackets = (line) => {
     // We have to keep track of all opening brackets we've seen
     const seenBrackets = [];
     for (let i = 0; i < line.length; i++) {
@@ -99,8 +99,7 @@ export default class Solver {
     const badBrackets = [];
     INPUT.forEach((line) => {
       // Let's check if the line contains a bad bracket
-      const { badBracket } =
-        this.#getPotentialBadAndMissingBracketsBrackets(line);
+      const { badBracket } = this.#getPotentialBadAndMissingBrackets(line);
       // If it does, we add it to the array of bad brackets
       badBracket && badBrackets.push(badBracket);
     });
@@ -112,8 +111,7 @@ export default class Solver {
     const costs = [];
     INPUT.forEach((line) => {
       // Let's get the missing brackets to begin with
-      const { missingBrackets } =
-        this.#getPotentialBadAndMissingBracketsBrackets(line);
+      const { missingBrackets } = this.#getPotentialBadAndMissingBrackets(line);
       // We might get an empty array returned (if there has been a bad bracket)
       // Let's make sure we have some missing brackets before moving on.
       if (missingBrackets.length > 0) {
