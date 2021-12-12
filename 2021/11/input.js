@@ -7,4 +7,4 @@ export const INPUT = fs
   .readFileSync(path.join(__dirname, "input.txt"), "utf8")
   .toString()
   .trim()
-  .split("\n");
+  .split("\r\n");
