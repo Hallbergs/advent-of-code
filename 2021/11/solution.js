@@ -106,6 +106,9 @@ export default class Solver {
       .split("")
       .map((string) => parseInt(string));
     let step = 0;
+    // In P2 we want to check at which step all subs will flash at
+    // the same time. This will occur the step after all subs have a
+    // energy-level of zero. Let's check for that!
     while (step > -1) {
       this.#handleStep(energyLevels);
       const allFlashed = energyLevels.every((energyLevel) => {
