@@ -1,4 +1,6 @@
 import { INPUT } from "./input.js";
+import nodeplotlib from "nodeplotlib";
+const { plot } = nodeplotlib;
 
 export default class Solver {
   constructor() {}
@@ -7,6 +9,7 @@ export default class Solver {
     return string.split(",") ?? [null, null];
   };
 
+  // Initiates a Map containing the coordinates that are marked as keys
   #initiatePaperFromInput = () => {
     const transparentPaper = new Map();
     [...INPUT[0]].forEach((coordString) => {
@@ -14,6 +17,21 @@ export default class Solver {
       transparentPaper.set(`${xCoord},${yCoord}`, true);
     });
     return transparentPaper;
+  };
+
+  // If the fold-direction is "x", we have to make sure to shift
+  // the paper down after each fold. (Since the fold-line will be
+  // the new zero!)
+  #shiftPaperToZero = (paper, foldLine) => {
+    const shiftedPaper = new Map();
+    for (const key of paper.keys()) {
+      paper.delete(key);
+      const [xCoord, yCoord] = key.split(",").map((string) => parseInt(string));
+      shiftedPaper.set(`${xCoord - foldLine - 1},${yCoord}`, true);
+    }
+    for (const [key, value] of shiftedPaper.entries()) {
+      paper.set(key, value);
+    }
   };
 
   #foldPaper = (paper, foldInfo) => {
@@ -48,6 +66,27 @@ export default class Solver {
         paper.set(`${newXCoord},${yCoord}`, true);
       }
     }
+    // If the fold-direction is "x", we have to make sure to shift
+    // the paper down after each fold. (Since the fold-line will be
+    // the new zero!)
+    if (foldDirection === "x") {
+      this.#shiftPaperToZero(paper, foldLine);
+    }
+  };
+
+  // Generates data on the form that nodePlotLib accepts from the supplied
+  // paper with coordinates.
+  #createPlotData = (paper) => {
+    const plotData = [
+      { x: [], y: [], mode: "markers", type: "scatter", marker: { size: 18 } },
+    ];
+
+    for (const key of paper.keys()) {
+      const [xCoord, yCoord] = key.split(",").map((string) => parseInt(string));
+      plotData[0].x.push(xCoord);
+      plotData[0].y.push(-yCoord);
+    }
+    return plotData;
   };
 
   solveProblemOne = () => {
@@ -72,8 +111,11 @@ export default class Solver {
     [...INPUT[1]].forEach((foldInstruction) => {
       this.#foldPaper(paper, foldInstruction);
     });
-
-    console.log("PAPER: ", paper);
+    // Let's plot the coordinates so that we can find the code
+    const plotData = this.#createPlotData(paper);
+    // The default port for the plot-lib might fail on some machines. To change
+    // the port, supply a PORT env-variable! E.g. run "PORT=3000 node solution.js".
+    plot(plotData);
   };
 }
 // Initiate the class

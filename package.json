@@ -17,5 +17,7 @@
     "url": "https://github.com/Hallbergs/advent-of-code/issues"
   },
   "homepage": "https://github.com/Hallbergs/advent-of-code#readme",
-  "devDependencies": {}
+  "dependencies": {
+    "nodeplotlib": "^0.7.6"
+  }
 }
