@@ -28,6 +28,42 @@ export default class Solver {
     return adjacentPoints;
   };
 
+  // Creates an extended map - five times larger than the
+  // supplied map.
+  #createExtendedMap = (originalMap) => {
+    return [...Array(originalMap.length * 5)].map((yVal, yIndex) => {
+      return [...Array(originalMap[0].length * 5)].map((xVal, xIndex) => {
+        // Let's check how many times we've extended the map in each direction
+        const numExtensionsX = Math.floor(xIndex / originalMap[0].length);
+        const numExtensionsY = Math.floor(yIndex / originalMap.length);
+        // The amount to add will be the sum of the number of times we've extended
+        // the map in each direction.
+        const amountToAdd = numExtensionsX + numExtensionsY;
+        // Let's initiate the next val with the initial value
+        let initialValue =
+          originalMap[yIndex % originalMap.length][
+            xIndex % originalMap[0].length
+          ];
+        // If the initial value plus the amount to add summarizes to
+        // more than nine, it will wrap back to one, let's handle that
+        if (initialValue + amountToAdd > 9) {
+          for (let i = 1; i <= amountToAdd; i++) {
+            if (initialValue === 9) {
+              initialValue = 1;
+            } else {
+              initialValue += 1;
+            }
+          }
+          return initialValue;
+          // If it doesn't, we can just return the initial value plus the
+          // amount to add.
+        } else {
+          return initialValue + amountToAdd;
+        }
+      });
+    });
+  };
+
   // Calculates the total cost traveling from start to end
   #getMinimalCostToGoal = (map, start = [0, 0], end = [0, 0]) => {
     // We have to keep track o which points we've checked
@@ -75,7 +111,17 @@ export default class Solver {
     return this.#getMinimalCostToGoal(map, start, end);
   };
 
-  solveProblemTwo = () => {};
+  solveProblemTwo = () => {
+    // In P2 the map is 5 times larger in x and y direction. Let's
+    // begin by creating the extended map!
+    const extendedMap = this.#createExtendedMap([...INPUT]);
+    // Let's declare the start and end points
+    const start = [0, 0];
+    const end = [extendedMap[0].length - 1, extendedMap.length - 1];
+    // Then we'll get the lowest total cost from the start
+    // to the goal, and return it.
+    return this.#getMinimalCostToGoal(extendedMap, start, end);
+  };
 }
 // Initiate the class
 const solver = new Solver();
