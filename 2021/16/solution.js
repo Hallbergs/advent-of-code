@@ -31,6 +31,49 @@ export default class Solver {
     }
   };
 
+  // Returns the value of the packet based on all the confusing rules...
+  #getPacketValue = (packet) => {
+    // If we're dealing with a literal packet, we can return the value right away...
+    if (this.#packetIsLiteralPacket(packet)) {
+      return packet.value;
+    }
+    // Otherwise, we have to handle the packets in some funky ways
+    // First we'll get all the subPacket values: (The sub packets will be in the value key of the current packet).
+    const subPacketValues = packet.value.map((subPacket) => {
+      return this.#getPacketValue(subPacket);
+    });
+    // Then we'll handle the sub-packets according to the rules (based on the packet type)
+    switch (packet.packetType) {
+      case 0:
+        // Sum-packet
+        return subPacketValues.reduce((acc, packetValue) => {
+          return acc + packetValue;
+        }, 0);
+      case 1:
+        // Product-packet
+        return subPacketValues.reduce((acc, packetValue) => {
+          return acc * packetValue;
+        }, 1);
+      case 2:
+        // Min-packet
+        return Math.min(...subPacketValues);
+      case 3:
+        // Max-packet
+        return Math.max(...subPacketValues);
+      case 5:
+        // Larger-packet
+        return subPacketValues[0] > subPacketValues[1] ? 1 : 0;
+      case 6:
+        // Smaller-packet
+        return subPacketValues[0] < subPacketValues[1] ? 1 : 0;
+      case 7:
+        // Equals-packet
+        return subPacketValues[0] === subPacketValues[1] ? 1 : 0;
+      default:
+        console.log("Unhandled packet!");
+    }
+  };
+
   #parsePacket = (binaryString) => {
     // Let's begin by transforming to an array of characters. That way we can
     // splice the array and get rid of used characters.
@@ -125,7 +168,16 @@ export default class Solver {
     return this.#getPacketVersionSum(packet);
   };
 
-  solveProblemTwo = () => {};
+  solveProblemTwo = () => {
+    const binaryString = [...INPUT.split("")].reduce((binary, hexVal) => {
+      binary += this.#changeNumberBase(hexVal, 16, 2);
+      return binary;
+    }, "");
+    // Let's parse the binary string!
+    const { packet } = this.#parsePacket(binaryString);
+    // Then we'll calculate the value of the packet and return!
+    return this.#getPacketValue(packet);
+  };
 }
 // Initiate the class
 const solver = new Solver();
