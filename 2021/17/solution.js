@@ -55,16 +55,38 @@ export default class Solver {
       currentPosition.set("y", currentPosition.get("y") + velocityY);
       highest =
         currentPosition.get("y") > highest ? currentPosition.get("y") : highest;
-
+      // Are we inside the target? Let's finish...
       if (this.#positionIsWithinTarget(currentPosition)) {
         this.#highestY = highest > this.#highestY ? highest : this.#highestY;
         moving = false;
-        return;
       }
+      // Are we beyond the target? Let's abort...
       if (this.#positionIsBeyondTarget(currentPosition)) {
         moving = false;
-        return;
       }
+      // The velocities has to be updated after every step...
+      velocityX =
+        velocityX > 0 ? (velocityX -= 1) : velocityX < 0 ? (velocityX += 1) : 0;
+      velocityY--;
+    }
+  };
+
+  // Checks wether we hit the target or not, based on the initial velocity
+  #hitsTarget = (initialVelocity) => {
+    const currentPosition = this.#getInitialPositionMap();
+    let [velocityX, velocityY] = initialVelocity;
+    while (true) {
+      currentPosition.set("x", currentPosition.get("x") + velocityX);
+      currentPosition.set("y", currentPosition.get("y") + velocityY);
+      // Are we inside the target? Let's finish...
+      if (this.#positionIsWithinTarget(currentPosition)) {
+        return true;
+      }
+      // Are we beyond the target? Let's abort...
+      if (this.#positionIsBeyondTarget(currentPosition)) {
+        return false;
+      }
+      // The velocities has to be updated after every step...
       velocityX =
         velocityX > 0 ? (velocityX -= 1) : velocityX < 0 ? (velocityX += 1) : 0;
       velocityY--;
@@ -80,7 +102,17 @@ export default class Solver {
     return this.#highestY;
   };
 
-  solveProblemTwo = () => {};
+  solveProblemTwo = () => {
+    const velocitiesHittingTarget = [];
+    for (let x = 0; x < this.#maxVelocity; x++) {
+      for (let y = -this.#maxVelocity; y < this.#maxVelocity; y++) {
+        if (this.#hitsTarget([x, y])) {
+          velocitiesHittingTarget.push([x, y]);
+        }
+      }
+    }
+    return velocitiesHittingTarget.length;
+  };
 }
 // Initiate the class
 const solver = new Solver();
