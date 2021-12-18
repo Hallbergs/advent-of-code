@@ -129,7 +129,28 @@ export default class Solver {
     return this.#getMagnitude(nodeStructure);
   };
 
-  solveProblemTwo = () => {};
+  solveProblemTwo = () => {
+    let maxMagnitude = -Infinity;
+    for (let i = 0; i < [...INPUT].length; i++) {
+      for (let ii = 0; ii < [...INPUT].length; ii++) {
+        if (i === ii) {
+          continue;
+        }
+        const magnitude = this.#getMagnitude(
+          this.#reduce(
+            this.#addNode(
+              this.#createNodeStructure([...INPUT][i]),
+              this.#createNodeStructure([...INPUT][ii])
+            )
+          )
+        );
+        if (maxMagnitude < magnitude) {
+          maxMagnitude = magnitude;
+        }
+      }
+    }
+    return maxMagnitude;
+  };
 }
 // Initiate the class
 const solver = new Solver();
