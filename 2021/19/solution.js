@@ -1,13 +1,45 @@
 import { INPUT } from "./input.js";
 
 export default class Solver {
-  constructor() {}
+  #rotations;
+
+  constructor() {
+    this.#rotations = [
+      ([x, y, z]) => [x, y, z],
+      ([x, y, z]) => [y, z, x],
+      ([x, y, z]) => [z, x, y],
+      ([x, y, z]) => [-x, z, y],
+      ([x, y, z]) => [z, y, -x],
+      ([x, y, z]) => [y, -x, z],
+      ([x, y, z]) => [x, z, -y],
+      ([x, y, z]) => [z, -y, x],
+      ([x, y, z]) => [-y, x, z],
+      ([x, y, z]) => [x, -z, y],
+      ([x, y, z]) => [-z, y, x],
+      ([x, y, z]) => [y, x, -z],
+      ([x, y, z]) => [-x, -y, z],
+      ([x, y, z]) => [-y, z, -x],
+      ([x, y, z]) => [z, -x, -y],
+      ([x, y, z]) => [-x, y, -z],
+      ([x, y, z]) => [y, -z, -x],
+      ([x, y, z]) => [-z, -x, y],
+      ([x, y, z]) => [x, -y, -z],
+      ([x, y, z]) => [-y, -z, x],
+      ([x, y, z]) => [-z, x, -y],
+      ([x, y, z]) => [-x, -z, -y],
+      ([x, y, z]) => [-z, -y, -x],
+      ([x, y, z]) => [-y, -x, -z],
+    ];
+  }
 
   solveProblemOne = () => {
-    console.log(INPUT);
+    console.log("Haven't had time to solve this one yet... \n :(");
+    return null;
   };
 
-  solveProblemTwo = () => {};
+  solveProblemTwo = () => {
+    return null;
+  };
 }
 // Initiate the class
 const solver = new Solver();
