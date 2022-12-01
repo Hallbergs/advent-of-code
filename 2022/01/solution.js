@@ -1,10 +1,6 @@
 import { INPUT } from "./input.js";
 
 export default class Solver {
-  constructor() {
-    this.numIncrements = 0;
-  }
-
   getTotalCaloriesPerElf = () => {
     let elfIndex = 0;
     const totalCaloriesPerElf = [];
@@ -33,9 +29,8 @@ export default class Solver {
     return topThreeAmounts.reduce((a, c) => a + c, 0);
   };
 }
-// Initiate the class
+
 const solver = new Solver();
-// And run the solvers
 const answerOne = solver.solveProblemOne();
 const answerTwo = solver.solveProblemTwo();
 
