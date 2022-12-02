@@ -15,7 +15,21 @@ export default class Solver {
     }, 0);
   };
 
-  solveProblemTwo = () => {};
+  solveProblemTwo = () => {
+    const om = ["A", "B", "C"];
+    return INPUT.reduce((a, c) => {
+      const [o, p] = c.split(" ");
+      const oi = om.indexOf(o);
+      switch (p) {
+        case "X":
+          return a + (oi - 1 < 0 ? om.length - 1 : oi - 1) + 1;
+        case "Y":
+          return a + oi + 4;
+        default:
+          return a + (oi + 1 > om.length - 1 ? 0 : oi + 1) + 1 + 6;
+      }
+    }, 0);
+  };
 }
 
 const solver = new Solver();
