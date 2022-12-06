@@ -1,15 +1,8 @@
 import { INPUT } from "./input.js";
 
 export default class Solver {
-  constructor() {
-    this.letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(
-      ""
-    );
-  }
-
-  #getCharacterPriority = (char) => {
-    return this.letters.indexOf(char) + 1;
-  };
+  #getCharacterPriority = (char) =>
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(char) + 1;
 
   #getBiggestRucksack = (s1, s2, s3) => {
     return [s1, s2, s3].reduce((a, b) => {
